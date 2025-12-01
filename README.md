@@ -1,257 +1,69 @@
-# LLMLight: Large Language Models as Traffic Signal Control Agents
+# Traffic-R1: LLM-driven Traffic Signal Control 🚦
 
-[![llmlight](./media/llmlight.png)](https://gungnir2099.github.io/LLMLight-Page/)
+Dokumentacja techniczna i instrukcja uruchomienia środowiska symulacyjnego Traffic-R1. Projekt integruje symulator CityFlow z modelem językowym Qwen 2.5 (Traffic-R1) w celu optymalizacji sterowania ruchem miejskim.
 
-<p align="center">
+## 🛠️ Wymagania Systemowe
 
-![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
-![Testing Status](https://img.shields.io/badge/pypi_package-in_progress-green)
-![Testing Status](https://img.shields.io/badge/license-MIT-blue)
-![Stars](https://img.shields.io/github/stars/usail-hkust/LLMTSCS)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14619360.svg)](https://doi.org/10.5281/zenodo.14619360)
+1.  **Docker Desktop**: Musi być zainstalowany i **uruchomiony** w tle.
+2.  **GPU NVIDIA**: Wymagana karta graficzna z obsługą CUDA.
+3.  **Model**: Pliki modelu Traffic-R1 muszą znajdować się w lokalizacji `models/Traffic-R1/huggingface`.
 
-</p>
+## 🚀 Instrukcja Uruchomienia (Docker)
 
-<p align="center">
+Całe środowisko zostało skonteneryzowane, aby uniknąć problemów z zależnościami na Windows/Linux.
 
-| **[1 Introduction](#introduction)** 
-| **[2 Requirements](#requirements)**
-| **[3 Usage](#usage)**
-| **[4 Baselines](#baselines)**
-| **[5 LightGPT Training](#lightgpt-training)** 
-| **[6 Code structure](#code-structure)** 
-| **[7 Datasets](#datasets)**
-| **[8 Citation](#citation)**
-| **[Website](https://sqlai2099.github.io/LLMLight-Page/)** |
+### 1. Budowanie Obrazu
+Wykonaj to polecenie raz, aby zbudować środowisko. Docker automatycznie pobierze i zainstaluje wszystkie wymagane biblioteki z pliku `requirements.txt` (m.in. `transformers`, `peft`, `cityflow`).
 
-</p>
-
-<a id="introduction"></a>
-
-## 🎉 News 
-
-- [x] 🚀🔥 [2024.11] 🎯🎯📢📢 Exciting News! We are thrilled to announce that our 🌟**LLMLight**🌟 has been accepted by **KDD'2025**! 🎉🎉🎉 Thanks to all the team members 🤗
-- [x] 🚀🔥 [2024.11] 🎯🎯📢📢 Exciting Update! We’re thrilled to announce that our LightGPT family has expanded with **four new members** now available on [HuggingFace](https://huggingface.co/collections/usail-hkust/llmlight-lightgpt-673ac5a619cbbe309165b56d). These models include fine-tuned backbones based on **Qwen2** and **Llama3**. Check them out!
-- [x] 🚀🔥 [2025.04] 🎯🎯📢📢 Delighted to receive the Special Award and Golden Medal of the International Exhibition Inventions of Geneva 2025, congratulations to the LLMLight team! 🤗
-- [x] 🚀🔥 [2025.08] 🎯🎯📢📢 Delighted to receive the Audience Appreciation Award from **KDD'2025**, congratulations to the LLMLight team! 🤗
-
-<table>
-  <tr>
-    <td width="20%">
-      <img src="https://github.com/user-attachments/assets/6a7e1819-9c12-4719-95f1-c5f3df663cb7" style="width:100%;"/>
-    </td>
-    <td width="40%">
-      <img src="https://github.com/user-attachments/assets/bbb88210-7ab3-4f49-91cb-b731c364027d" style="width:100%;"/>
-    </td>
-    <td width="40%">
-      <img src="https://github.com/user-attachments/assets/9b6117d1-0eb6-41e4-b8d0-b369cabb91ee" style="width:100%;"/>
-    </td>
-  </tr>
-
-</table>
-
-## 1 Introduction
-
-Official code for article "[LLMLight: Large Language Models as Traffic Signal Control Agents](https://arxiv.org/abs/2312.16044)".
-
-Traffic Signal Control (TSC) is a crucial component in urban traffic management, aiming to optimize road network efficiency and reduce congestion. Traditional methods in TSC, primarily based on transportation engineering and reinforcement learning (RL), often exhibit limitations in generalization across varied traffic scenarios and lack interpretability. This paper presents LLMLight, a novel framework employing Large Language Models (LLMs) as decision-making agents for TSC. Specifically, the framework begins by instructing the LLM with a knowledgeable prompt detailing real-time traffic conditions. Leveraging the advanced generalization capabilities of LLMs, LLMLight engages a reasoning and decision-making process akin to human intuition for effective traffic control. Moreover, we build LightGPT, a specialized backbone LLM tailored for TSC tasks. By learning nuanced traffic patterns and control strategies, LightGPT enhances the LLMLight framework cost-effectively. Extensive experiments on nine real-world and synthetic datasets showcase the remarkable effectiveness, generalization ability, and interpretability of LLMLight against nine transportation-based and RL-based baselines.
-
-The code structure is based on [Efficient_XLight](https://github.com/LiangZhang1996/Efficient_XLight.git).
-
-![workflow](./media/Workflow.png)
-
-### Watch Our Demo Video Here:
-https://github.com/usail-hkust/LLMTSCS/assets/62106026/90567f61-5d58-4dac-8c8e-836a421f3ff9
-
-
-<a id="requirements"></a>
-## 2 Requirements
-
-`python>=3.9`,`tensorflow-cpu==2.8.0`, `cityflow`, `pandas==1.5.0`, `numpy==1.26.2`, `wandb`,  `transformers==4.45.0`, `peft==0.7.1`, `accelerate==0.27.2`, `datasets==2.16.1`, `fire`, `vllm==0.6.2`
-
-[`cityflow`](https://github.com/cityflow-project/CityFlow.git) needs a Linux environment, and we run the code on Ubuntu.
-
-<a id="usage"></a>
-
-## 3 Usage
-
-Parameters are well-prepared, and you can run the code directly.
-
-- For example, to run `Advanced-MPLight`:
-```shell
-python run_advanced_mplight.py --dataset hangzhou \
-                               --traffic_file anon_4_4_hangzhou_real.json \
-                               --proj_name TSCS
-```
-- To run GPT-3.5/GPT-4 with LLMLight, you need to set your key in `./models/chatgpt.py`:
-
-```python
-headers = {
-    "Content-Type": "application/json",
-    "Authorization": "YOUR_KEY_HERE"
-}
+```bash
+docker build -t traffic-r1-env .
 ```
 
-Then, run LLMLight by:
+### 2. Start Kontenera
+Uruchomienie interaktywnej sesji z montowaniem bieżącego katalogu (dzięki temu wyniki zapisują się na dysku hosta).
 
-```shell
-python run_chatgpt.py --prompt Commonsense \
-                      --dataset hangzhou \
-                      --traffic_file anon_4_4_hangzhou_real.json \
-                      --gpt_version gpt-4 \
-                      --proj_name TSCS
-```
-You can either choose `Commonsense` or `Wait Time Forecast` as the `prompt` argument.
-
-- To run with open-sourced LLMs (or LightGPT) and LLMLight:
-
-```shell
-# with default methods of Transformers
-python run_open_LLM.py --llm_model LLM_MODEL_NAME_ONLY_FOR_LOG \
-                       --llm_path LLM_PATH \
-                       --dataset hangzhou \
-                       --traffic_file anon_4_4_hangzhou_real.json \
-                       --proj_name TSCS
-                       
-# or with VLLM (much faster but will cost more GPU memory)
-python run_open_LLM_with_vllm.py --llm_model LLM_MODEL_NAME_ONLY_FOR_LOG \
-                                 --llm_path LLM_PATH \
-                                 --dataset hangzhou \
-                                 --traffic_file anon_4_4_hangzhou_real.json \
-                                 --proj_name TSCS
-```
-<a id="baselines"></a>
-
-## 4 Baselines
-
-- **Heuristic Methods**:
-    - FixedTime, Maxpressure, EfficientMaxPressure
-- **DNN-RL**:
-    - PressLight, MPLight, CoLight, AttendLight, EfficientMPLight, EfficientPressLight, Efficient-Colight
-- **Adv-DNN-RL**:
-    - Advanced-MaxPressure, Advanced-MPLight, Advanced-Colight
-- **LLMLight+LLM**:
-  - `gpt-3.5-turbo-0613`, `gpt-4-0613`, `llama-2-13b-chat-hf`, `llama-2-70b-chat-hf`
-- **LLMLight+LightGPT**:
-    - The model trained on Jinan 1 is available at https://huggingface.co/collections/usail-hkust/llmlight-lightgpt-673ac5a619cbbe309165b56d
-
-<a id="lightgpt-training"></a>
-
-## 5 LightGPT Training
-
-### Step 1: Imitation Fine-tuning
-
-```shell
-python ./finetune/run_imitation_finetune.py --base_model MODEL_PATH \
-                                            --data_path DATA_PATH \
-                                            --output_dir OUTPUT_DIR
-                                            
-python ./finetune/merge_lora.py --adapter_model_name="OUTPUT_DIR" \
-                                --base_model_name="MODEL_PATH" \
-                                --output_name="MERGED_MODEL_PATH"
+**Windows (PowerShell):**
+```powershell
+docker run --gpus all -it --rm -v ${PWD}:/app -e WANDB_MODE=disabled traffic-r1-env
 ```
 
-We merge the adapter with the base model by running `merge_lora.py`.
-
-### Step 2: Policy Refinement Data Collection
-
-- You first need to train `Advanced-CoLight` by running:
-
-```shell
-python run_advanced_colight.py --dataset hangzhou \
-                               --traffic_file anon_4_4_hangzhou_real.json \
-                               --proj_name TSCS
+**Linux / macOS / WSL:**
+```bash
+docker run --gpus all -it --rm -v $(pwd):/app -e WANDB_MODE=disabled traffic-r1-env
 ```
 
-The RL model weights will be automatically saved in a checkpoint folder in `./model`. You need to copy it and put it under the `./model_weights/AdvancedColight/{traffic_file}/"` folder.
+> **Uwaga:** Jeśli otrzymasz błąd `error during connect`, upewnij się, że aplikacja Docker Desktop jest włączona.
 
-- Then, collect the data by running:
+### 3. Uruchomienie Symulacji
+Po wejściu do kontenera (prompt zmieni się na `root@...:/app#`), uruchom symulację poleceniem:
 
-```shell
-python ./finetune/run_policy_refinement_data_collection.py --llm_model MODEL_NAME_ONLY_FOR_LOG \
-                                                           --llm_path MODEL_PATH \
-                                                           --dataset hangzhou \
-                                                           --traffic_file anon_4_4_hangzhou_real.json
+```bash
+python scripts/run_open_LLM.py \
+  --dataset jinan \
+  --traffic_file anon_3_4_jinan_real.json \
+  --num_rounds 1 \
+  --llm_path /app/models/Traffic-R1/huggingface \
+  --llm_model Traffic-R1
 ```
 
-The fine-tuning data will be ready at `./data/cgpr/cgpr_{traffic_file}.json`.
+## 📊 Analiza Wyników
 
-### Step 3: Critic-guided Policy Refinement
+Po zakończeniu symulacji wyniki znajdują się w katalogu `records/`.
+Nowa struktura folderów to: `records/<Model>_<Miasto>_<Data>_<Godzina>/`.
 
-```shell
-python ./finetune/run_policy_refinement.py --llm_model MODEL_NAME_ONLY_FOR_LOG \
-                                           --llm_path MODEL_PATH \
-                                           --llm_output_dir OUTPUT_DIR \
-                                           --dataset hangzhou \
-                                           --traffic_file anon_4_4_hangzhou_real.json \
-                                           --proj_name LightGPTFineTuning
-                                           
-python ./finetune/merge_lora.py --adapter_model_name="OUTPUT_DIR_{traffic_file}" \
-                                --base_model_name="MODEL_PATH" \
-                                --output_name="MERGED_MODEL_PATH"
-```
+*   **Metryki:** Plik `advanced_metrics.json` wewnątrz folderu z wynikami.
+*   **Wizualizacja (Ułatwiona):**
+    1.  Otwórz `frontend/index.html` w przeglądarce.
+    2.  Wybierz plik mapy: `data/jinan/roadnet_3_4.json`.
+    3.  Wybierz plik logu: **`frontend/latest_replay.txt`** (to automatyczny skrót do najnowszego wyniku!).
 
-Similarly, we merge the adapter with the base model by running `merge_lora.py`.
+> [!NOTE]
+> **Generowanie Video:** Funkcjonalność automatycznego generowania wizualizacji video jest obecnie w fazie rozwoju (work in progress).
 
-<a id="code-structure"></a>
+## 📂 Struktura Repozytorium
 
-## 6 Code structure
-
-- `models`: contains all the models used in our article.
-- `utils`: contains all the methods to simulate and train the models.
-- `frontend`: contains visual replay files of different agents.
-- `errors`: contains error logs of ChatGPT agents.
-- `{LLM_MODEL}_logs`: contains dialog log files of a LLM.
-- `prompts`: contains base prompts of ChatGPT agents.
-- `finetune`: contains codes for LightGPT training.
-
-<a id="datasets"></a>
-## 7 Datasets
-
-<table>
-    <tr>
-        <td> <b> Road networks </b> </td> <td> <b> Intersections </b> </td> <td> <b> Road network arg </b> </td> <td> <b> Traffic files </b> </td>
-    </tr>
-    <tr> <!-- Jinan -->
-        <th rowspan="4"> Jinan </th> <th rowspan="4"> 3 X 4 </th> <th rowspan="4"> jinan </th>  <td> anon_3_4_jinan_real </td> 
-    </tr>
-  	<tr>
-      <td> anon_3_4_jinan_real_2000 </td>
-  	</tr>
-  	<tr>
-      <td> anon_3_4_jinan_real_2500 </td>
-    </tr>
-    <tr>
-      <td> anon_3_4_jinan_synthetic_24000_60min </td>
-    </tr>
-  	<tr> <!-- Hangzhou -->
-        <th rowspan="3"> Hangzhou </th> <th rowspan="3"> 4 X 4 </th> <th rowspan="3"> hangzhou </th> <td> anon_4_4_hangzhou_real </td>
-    </tr>
-  	<tr>
-      <td> anon_4_4_hangzhou_real_5816 </td>
-    </tr>
-    <tr>
-      <td> anon_4_4_hangzhou_synthetic_24000_60min </td>
-    </tr>
-  <tr> <!-- Newyork -->
-        <th rowspan="2"> New York </th> <th rowspan="2"> 28 X 7 </th> <th rowspan="2"> newyork_28x7 </th> <td> anon_28_7_newyork_real_double </td>
-    </tr>
-  	<tr>
-      <td> anon_28_7_newyork_real_triple </td>
-    </tr>
-</table>
-
-<a id="citation"></a>
-
-## 8 Citation
-
-```
-@misc{lai2024llmlight,
-      title={LLMLight: Large Language Models as Traffic Signal Control Agents}, 
-      author={Siqi Lai and Zhao Xu and Weijia Zhang and Hao Liu and Hui Xiong},
-      year={2024},
-      eprint={2312.16044},
-      archivePrefix={arXiv},
-      primaryClass={cs.AI}
-}
-```
+*   `run_open_LLM.py` – Główny skrypt startowy.
+*   `utils/metrics.py` – Moduł analityczny (TrafficMetrics).
+*   `models/` – Katalog na wagi modeli.
+*   `data/` – Dane wejściowe (mapy, scenariusze ruchu).
+*   `records/` – Logi i wyniki symulacji.

@@ -7,6 +7,7 @@ import wandb
 from utils.cityflow_env import CityFlowEnv
 import utils.config as config
 from utils.aft_rank_loss_utils import *
+from utils.metrics import TrafficMetrics
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import LoraConfig, get_peft_model
 from datasets import load_dataset
@@ -204,7 +205,8 @@ class LLM_CGPR_Collector:
             prompts = []
             for s in current_states:
                 prompt = getPrompt(state2text(s))
-                prompt = prompt[0]['content'] + "\n\n### Instruction:\n" + prompt[1]['content'] + "\n\n### Response:\n"
+                # prompt = prompt[0]['content'] + "\n\n### Instruction:\n" + prompt[1]['content'] + "\n\n### Response:\n"
+                prompt = self.tokenizer.apply_chat_template(prompt, tokenize=False, add_generation_prompt=True)
                 prompts.append(prompt)
             inputs = self.tokenizer(prompts, return_tensors="pt", padding="longest")['input_ids'].to('cuda')
 
@@ -499,7 +501,8 @@ class LLM_CGPR_Trainer:
             prompts = []
             for s in current_states:
                 prompt = getPrompt(state2text(s))
-                prompt = prompt[0]['content'] + "\n\n### Instruction:\n" + prompt[1]['content'] + "\n\n### Response:\n"
+                # prompt = prompt[0]['content'] + "\n\n### Instruction:\n" + prompt[1]['content'] + "\n\n### Response:\n"
+                prompt = self.tokenizer.apply_chat_template(prompt, tokenize=False, add_generation_prompt=True)
                 prompts.append(prompt)
             inputs = self.tokenizer(prompts, truncation=True, max_length=2048, padding=True, return_tensors='pt').to('cuda')
 
@@ -722,6 +725,7 @@ class LLM_Inference:
 
         start_time = time.time()
         state_action_log = [[] for _ in range(len(state))]
+        tracker = TrafficMetrics()
 
         self.llm_model.eval()
         for step_num in tqdm(range(int(total_run_cnt / self.dic_traffic_env_conf['MIN_ACTION_TIME']))):
@@ -742,7 +746,8 @@ class LLM_Inference:
             prompts = []
             for s in current_states:
                 prompt = getPrompt(state2text(s))
-                prompt = prompt[0]['content'] + "\n\n### Instruction:\n" + prompt[1]['content'] + "\n\n### Response:\n"
+                # prompt = prompt[0]['content'] + "\n\n### Instruction:\n" + prompt[1]['content'] + "\n\n### Response:\n"
+                prompt = self.tokenizer.apply_chat_template(prompt, tokenize=False, add_generation_prompt=True)
                 prompts.append(prompt)
             inputs = self.tokenizer(prompts, truncation=True, max_length=2048, padding=True, return_tensors='pt').to('cuda')
 
@@ -759,6 +764,7 @@ class LLM_Inference:
             critic_actions = []
             for i, res in enumerate(responses):
                 res = res[len(prompts[i]):]
+                print(f"[RAW_LLM_RESPONSE]: {res}")
                 signal_answer_pattern = r'<signal>(.*?)</signal>'
                 signals = re.findall(signal_answer_pattern, res)
                 signal_text = signals[-1] if len(signals) > 0 else "ETWT"
@@ -775,6 +781,7 @@ class LLM_Inference:
 
             next_state, _, done, _ = self.env.step(action_list)
             rewards = self.get_norm_reward(next_state)  # my reward
+            tracker.update(self.env.eng, self.env.get_current_time())
 
             current_time = self.env.get_current_time()  # in seconds
             state = next_state
@@ -823,6 +830,7 @@ class LLM_Inference:
         dump_json(state_action_log, f_state_action)
         print("Testing time: ", time.time() - start_time)
 
+        tracker.save_summary(os.path.join(self.dic_path["PATH_TO_WORK_DIRECTORY"], "advanced_metrics.json"))
         self.env.batch_log_2()
 
         return results
@@ -962,6 +970,7 @@ class LLM_Inference_VLLM:
 
         start_time = time.time()
         state_action_log = [[] for _ in range(len(state))]
+        tracker = TrafficMetrics()
 
         self.llm_model.eval()
         for step_num in tqdm(range(int(total_run_cnt / self.dic_traffic_env_conf['MIN_ACTION_TIME']))):
@@ -982,7 +991,8 @@ class LLM_Inference_VLLM:
             prompts = []
             for s in current_states:
                 prompt = getPrompt(state2text(s))
-                prompt = prompt[0]['content'] + "\n\n### Instruction:\n" + prompt[1]['content'] + "\n\n### Response:\n"
+                # Use tokenizer chat template for Qwen 2.5 compatibility (instead of hardcoded instruction format)
+                prompt = self.tokenizer.apply_chat_template(prompt, tokenize=False, add_generation_prompt=True)
                 prompts.append(prompt)
 
             responses = []
@@ -997,6 +1007,7 @@ class LLM_Inference_VLLM:
             vehicle_nums = self.get_vehicle_num(current_states)
             for i, res in enumerate(responses):
                 res = res[len(prompts[i]):]
+                print(f"[RAW_LLM_RESPONSE]: {res}")
                 signal_answer_pattern = r'<signal>(.*?)</signal>'
                 signals = re.findall(signal_answer_pattern, res)
                 signal_text = signals[-1] if len(signals) > 0 else "ETWT"
@@ -1013,6 +1024,7 @@ class LLM_Inference_VLLM:
 
             next_state, _, done, _ = self.env.step(action_list)
             rewards = self.get_norm_reward(next_state)  # my reward
+            tracker.update(self.env.eng, self.env.get_current_time())
 
             current_time = self.env.get_current_time()  # in seconds
             state = next_state
@@ -1061,6 +1073,7 @@ class LLM_Inference_VLLM:
         dump_json(state_action_log, f_state_action)
         print("Testing time: ", time.time() - start_time)
 
+        tracker.save_summary(os.path.join(self.dic_path["PATH_TO_WORK_DIRECTORY"], "advanced_metrics.json"))
         self.env.batch_log_2()
 
         return results

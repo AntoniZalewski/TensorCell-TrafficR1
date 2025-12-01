@@ -6,18 +6,46 @@ models/__pycache__/
 GPT_logs/
 errors/
 frontend/web/
-records/
+# records/
 summary/
 wandb/
 utils/__pycache__/
-scripts/
+# scripts/
 logs_case_study/
 logs_transfer/
 records_case_study/
 records_transfer/
 memory/
 *.sh
-/*.txt
+# /*.txt
 *.pyc
 *.pkl
 playground*
+
+# Model files (too large for git)
+models/
+
+# Test files
+test_*.py
+test_*.txt
+
+# Generated videos
+videos/
+
+# Upload directory
+uploads/
+
+# Records (simulation outputs)
+records/
+
+# Large traffic flow data files (keep roadnet files)
+data/**/anon_*.json
+data/**/cross_*.json
+data/**/*flow*.json
+
+# Frontend replay files
+frontend/latest_replay.txt
+frontend/replay*.txt
+frontend/page/replay*.txt
+frontend/*.webm
+frontend/*.mp4

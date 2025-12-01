@@ -16,7 +16,7 @@ from utils.cityflow_env import CityFlowEnv
 from transformers import AutoTokenizer, pipeline
 from trl import AutoModelForCausalLMWithValueHead, PPOConfig, PPOTrainer, create_reference_model
 from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, Trainer, DataCollatorForSeq2Seq
-from peft import LoraConfig, get_peft_model, PeftModel, prepare_model_for_int8_training
+from peft import LoraConfig, get_peft_model, PeftModel, prepare_model_for_kbit_training
 from tqdm import tqdm
 import torch
 from copy import deepcopy
