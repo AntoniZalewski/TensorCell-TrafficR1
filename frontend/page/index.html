@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Simulator</title>
+    <title>TensorCell • Traffic-R1 Autonomous Control</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
         integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="spinner.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.8.2/pixi.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pixi-viewport@4.2.3/dist/viewport.min.js"></script>
-    <link rel="stylesheet" href="http://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
-    <script src="http://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
     <script src="Point.js"></script>
 </head>
 
@@ -22,153 +22,156 @@
 <body class="noselect">
     <div class="container-fluid w-100 h-100 pt-0 pb-0">
         <div class="row h-100">
-            <div class="col-2 pt-4 shadow-lg mr-0 status-panel bg-light ">
-                <!-- <i class="fas fa-car h2"></i> -->
-                <h2 class="pb-3 border-bottom">CityFlow</h2>
-                <table class="table table-borderless table-hover border-bottom">
-                    <tbody>
-                        <tr>
-                            <th scope="row" class="pl-0">Number of vehicles</th>
-                            <td class="text-right" id="car-num">0</td>
-                        </tr>
-                        <tr class="d-none">
-                            <th scope="row" class="pl-0">Total number of simulation step</th>
-                            <td class="text-right" id="total-step-num">0</td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="pl-0">Current step</th>
-                            <td class="text-right" id="current-step-num">0</td>
-                        </tr>
-                        <tr class="d-none">
-                            <th scope="row" class="pl-0">Current simulation progress</th>
-                            <td class="text-right" id="progress-percentage">0</td>
-                        </tr>
-                        <tr class="d-none" id="speed-tr">
-                            <th scope="row" class="pl-0">Average speed on lanes</th>
-                            <td class="text-right" id="speed">0</td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="pl-0">Selected</th>
-                            <td class="text-right" id="selected-entity"></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div id="file-upload" class="border-dark">
-                    <div class="custom-file mb-3">
-                        <input class="custom-file-input" type="file" id="roadnet-file">
-                        <label class="custom-file-label" for="roadnet-file" id="roadnet-label">Roadnet File</label>
+            <div class="col-2 pt-3 pb-3 shadow-lg mr-0 status-panel">
+                <div class="brand-badge">
+                    <span class="pulse-indicator"></span>
+                    <span>AI Autonomous Control</span>
+                </div>
+                <div class="brand-title">TensorCell</div>
+                <div class="brand-subtitle">Traffic-R1 • CityFlow Engine</div>
+
+                <!-- Telemetry Cards -->
+                <div class="stat-card-grid">
+                    <div class="stat-card">
+                        <span class="stat-card-title"><i class="fas fa-car mr-1 text-info"></i> Vehicles</span>
+                        <span class="stat-card-value text-info" id="car-num">0</span>
                     </div>
-                    <div class="custom-file mb-3">
-                        <input class="custom-file-input" type="file" id="replay-file">
-                        <label class="custom-file-label" for="replay-file" id="replay-label">Replay File</label>
+                    <div class="stat-card">
+                        <span class="stat-card-title"><i class="fas fa-clock mr-1 text-primary"></i> Step</span>
+                        <span class="stat-card-value" id="current-step-num">0</span>
                     </div>
-                    <div class="custom-file">
-                        <input class="custom-file-input" type="file" id="chart-file">
-                        <label class="custom-file-label" for="replay-file" id="chart-label">Chart File
-                            (Optional)</label>
+                    <div class="stat-card">
+                        <span class="stat-card-title"><i class="fas fa-tachometer-alt mr-1 text-warning"></i> Speed</span>
+                        <span class="stat-card-value text-warning" id="speed">0</span>
                     </div>
-                    <div class="row m-3 align-items-center">
-                        <div class="col-6">
-                            <div class="custom-control custom-checkbox">
-                                <input class="custom-control-input" type="checkbox" id="debug-mode" />
-                                <label class="custom-control-label" for="debug-mode">
-                                    Debug*
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-6 text-center p-0">
-                            <button class="btn btn-outline-secondary" id="start-btn">Start</button>
-                        </div>
+                    <div class="stat-card">
+                        <span class="stat-card-title"><i class="fas fa-crosshairs mr-1 text-success"></i> Focus</span>
+                        <span class="stat-card-value text-truncate" id="selected-entity" style="font-size: 0.8rem;">None</span>
                     </div>
                 </div>
-                <div id="control-box " class="border-bottom">
-                    <h5 class="mt-4">Control Box</h5>
-                    <table class="table table-borderless table-hover mb-0">
-                        <tbody>
-                            <tr style="line-height: 10px; height: 10px;">
-                                <th scope="row" class="pl-0" id="stats-name">Replay Speed</th>
-                                <td class="text-right" id="replay-speed">0</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="row no-gutters">
-                        <div class="col-1 text-center">
-                            <span class="fas fa-minus" id="slow-btn" style="cursor: pointer"></span>
+
+                <!-- Hidden table elements for backwards script compatibility -->
+                <div class="d-none">
+                    <span id="total-step-num">0</span>
+                    <span id="progress-percentage">0</span>
+                </div>
+
+                <!-- Scenario & Log Files -->
+                <div class="section-header">
+                    <i class="fas fa-folder-open"></i> Scenario Files
+                </div>
+                <div id="file-upload">
+                    <div class="custom-file mb-2">
+                        <input class="custom-file-input" type="file" id="roadnet-file">
+                        <label class="custom-file-label" for="roadnet-file" id="roadnet-label">Roadnet File (.json)</label>
+                    </div>
+                    <div class="custom-file mb-2">
+                        <input class="custom-file-input" type="file" id="replay-file">
+                        <label class="custom-file-label" for="replay-file" id="replay-label">Replay Log (.txt)</label>
+                    </div>
+                    <div class="custom-file mb-2">
+                        <input class="custom-file-input" type="file" id="chart-file">
+                        <label class="custom-file-label" for="chart-file" id="chart-label">Chart Metric (Optional)</label>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between mt-2 mb-2">
+                        <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" id="debug-mode" />
+                            <label class="custom-control-label text-muted" for="debug-mode" style="font-size: 0.75rem;">
+                                Inspect Entity
+                            </label>
                         </div>
-                        <div class="col-10">
+                        <button class="btn btn-tech-primary btn-sm px-3" id="start-btn">
+                            <i class="fas fa-play mr-1"></i> Start
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Playback Control Box -->
+                <div class="section-header">
+                    <i class="fas fa-sliders-h"></i> Playback Control
+                </div>
+                <div id="control-box">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted" style="font-size: 0.75rem;" id="stats-name">Speed Rate</span>
+                        <span class="badge badge-secondary" id="replay-speed">0</span>
+                    </div>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col-1 text-center">
+                            <span class="fas fa-minus text-muted" id="slow-btn" style="cursor: pointer; font-size: 0.75rem;"></span>
+                        </div>
+                        <div class="col-10 px-1">
                             <input type="range" class="custom-range" id="replay-control">
                         </div>
                         <div class="col-1 text-center">
-                            <span class="fas fa-plus" id="fast-btn" style="cursor: pointer"></span>
+                            <span class="fas fa-plus text-muted" id="fast-btn" style="cursor: pointer; font-size: 0.75rem;"></span>
                         </div>
                     </div>
-                    <div class="row m-3">
-                        <div class="col-12 text-center">
-                            <button class="btn btn-outline-secondary w-100" id="pause">Pause</button>
-                        </div>
+                    <div class="mt-2">
+                        <button class="btn btn-tech-secondary btn-sm w-100" id="pause">
+                            <i class="fas fa-pause mr-1"></i> Pause
+                        </button>
                     </div>
-
                 </div>
 
-                <div id="video-generator" class="border-bottom">
-                    <h5 class="mt-4">Video Generator</h5>
-                    <div class="custom-file mb-3">
+                <!-- AI Video Generator Panel -->
+                <div class="section-header">
+                    <i class="fas fa-film"></i> Video Studio
+                </div>
+                <div id="video-generator">
+                    <div class="custom-file mb-2">
                         <input class="custom-file-input" type="file" id="state-action-file">
-                        <label class="custom-file-label" for="state-action-file" id="state-action-label">State Action
-                            File (JSON)</label>
+                        <label class="custom-file-label" for="state-action-file" id="state-action-label">State-Action Log (.json)</label>
                     </div>
-                    <table class="table table-borderless table-hover mb-0">
-                        <tbody>
-                            <tr style="line-height: 10px; height: 10px;">
-                                <th scope="row" class="pl-0">Zoom Level</th>
-                                <td class="text-right" id="zoom-value">100</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="row no-gutters">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted" style="font-size: 0.75rem;">Camera Zoom</span>
+                        <span class="badge badge-info" id="zoom-value">100m</span>
+                    </div>
+                    <div class="row no-gutters align-items-center mb-2">
                         <div class="col-1 text-center">
-                            <span class="fas fa-search-minus" id="zoom-out-btn" style="cursor: pointer"></span>
+                            <span class="fas fa-search-minus text-muted" id="zoom-out-btn" style="cursor: pointer; font-size: 0.75rem;"></span>
                         </div>
-                        <div class="col-10">
+                        <div class="col-10 px-1">
                             <input type="range" class="custom-range" id="zoom-control" min="50" max="200" value="100">
                         </div>
                         <div class="col-1 text-center">
-                            <span class="fas fa-search-plus" id="zoom-in-btn" style="cursor: pointer"></span>
+                            <span class="fas fa-search-plus text-muted" id="zoom-in-btn" style="cursor: pointer; font-size: 0.75rem;"></span>
                         </div>
                     </div>
-                    <div class="form-group mt-3">
-                        <label for="start-step-input">Start Step</label>
-                        <input type="number" class="form-control" id="start-step-input" value="0" min="0" max="10000">
-                    </div>
-                    <div class="form-group">
-                        <label for="end-step-input">End Step (or leave for auto)</label>
-                        <input type="number" class="form-control" id="end-step-input" placeholder="Auto (Start + 300)"
-                            min="0" max="10000">
-                    </div>
-                    <div class="row m-3">
-                        <div class="col-12 text-center">
-                            <button class="btn btn-primary w-100" id="generate-video-btn">
-                                <i class="fas fa-video"></i> Generate Video
-                            </button>
+                    <div class="form-row mb-2">
+                        <div class="col-6">
+                            <label for="start-step-input" class="text-muted mb-0" style="font-size: 0.68rem;">Start Step</label>
+                            <input type="number" class="form-control form-control-sm" id="start-step-input" value="0" min="0" max="10000">
+                        </div>
+                        <div class="col-6">
+                            <label for="end-step-input" class="text-muted mb-0" style="font-size: 0.68rem;">End Step</label>
+                            <input type="number" class="form-control form-control-sm" id="end-step-input" placeholder="Start + 300" min="0" max="10000">
                         </div>
                     </div>
-                    <div id="video-status" class="alert alert-info mt-2 d-none">
+                    <div>
+                        <button class="btn btn-tech-primary btn-sm w-100" id="generate-video-btn">
+                            <i class="fas fa-video mr-1"></i> Render AI Video
+                        </button>
+                    </div>
+                    <div id="video-status" class="alert alert-info mt-2 p-2 d-none" style="font-size: 0.75rem;">
                         <div class="d-flex align-items-center">
                             <div class="spinner-border spinner-border-sm mr-2" role="status">
                                 <span class="sr-only">Loading...</span>
                             </div>
-                            <span id="video-status-text">Generating video...</span>
+                            <span id="video-status-text">Rendering video...</span>
                         </div>
                     </div>
-                    <div id="video-list" class="mt-3 d-none">
-                        <h6>Generated Videos</h6>
-                        <div class="list-group" id="video-list-container">
+                    <div id="video-list" class="mt-2 d-none">
+                        <span class="text-muted" style="font-size: 0.75rem; font-weight: 600;">Generated Videos:</span>
+                        <div class="list-group mt-1" id="video-list-container">
                         </div>
                     </div>
                 </div>
 
-                <h5 class="mt-4">Info Box</h5>
-                <div id="info" class="alert alert-light border">
+                <!-- Info Box -->
+                <div class="section-header">
+                    <i class="fas fa-terminal"></i> Console Log
+                </div>
+                <div id="info">
                 </div>
             </div>
             <div class="col-10 h-100 d-flex flex-column p-0">

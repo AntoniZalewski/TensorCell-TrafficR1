@@ -3,32 +3,34 @@
  */
 id = Math.random().toString(36).substring(2, 15);
 
-BACKGROUND_COLOR = 0xe8ebed;
-LANE_COLOR = 0x586970;
-LANE_BORDER_WIDTH = 1;
-LANE_BORDER_COLOR = 0x82a8ba;
-LANE_INNER_COLOR = 0xbed8e8;
+BACKGROUND_COLOR = 0x0b0f19;
+LANE_COLOR = 0x1e293b;
+LANE_BORDER_WIDTH = 1.5;
+LANE_BORDER_COLOR = 0x334155;
+LANE_INNER_COLOR = 0x475569;
 LANE_DASH = 10;
 LANE_GAP = 12;
-TRAFFIC_LIGHT_WIDTH = 3;
-MAX_TRAFFIC_LIGHT_NUM = 100000;
+TRAFFIC_LIGHT_WIDTH = 4;
+MAX_TRAFFIC_LIGHT_NUM = 10000;
 ROTATE = 90;
 
 CAR_LENGTH = 5;
 CAR_WIDTH = 2;
-CAR_COLOR = 0xe8bed4;
+CAR_COLOR = 0x38bdf8;
 
-CAR_COLORS = [0xf2bfd7, // pink
-    0xb7ebe4,   // cyan
-    0xdbebb7,   // blue
-    0xf5ddb5,
-    0xd4b5f5];
+CAR_COLORS = [
+    0x38bdf8, // Electric Cyan
+    0x34d399, // Neon Emerald
+    0xfbbf24, // Amber Glow
+    0xa78bfa, // Cyber Violet
+    0xf43f5e  // Vivid Rose
+];
 CAR_COLORS_NUM = CAR_COLORS.length;
 
-NUM_CAR_POOL = 150000;
+NUM_CAR_POOL = 10000;
 
-LIGHT_RED = 0xdb635e;
-LIGHT_GREEN = 0x85ee00;
+LIGHT_RED = 0xef4444;
+LIGHT_GREEN = 0x10b981;
 
 TURN_SIGNAL_COLOR = 0xFFFFFF;
 TURN_SIGNAL_WIDTH = 1;
